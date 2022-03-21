@@ -1,0 +1,23 @@
+{
+  "name": "huffman-typescript",
+  "version": "1.0.0",
+  "description": "huffman with typescript",
+  "main": "index.js",
+  "repository": "git@github.com:Slowlydev/huffman-typescript.git",
+  "author": "Slowlydev <slowly.developers@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@tsconfig/node17": "^1.0.0",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.2"
+  },
+  "scripts": {
+    "compile": "tsc -w -p .",
+    "dev": "yarn ts-node src/index.ts"
+  },
+  "dependencies": {
+    "@types/node": "^17.0.22",
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7"
+  }
+}
