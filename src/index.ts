@@ -62,39 +62,18 @@ function createNewNode(chars: CharWithCount[]): Node {
 	}
 }
 
+function printCode(root: Node | undefined, s?: string) {
+	if (root !== null && root !== undefined) {
+		if (root.left == null && root.right == null && (root.chars[0].char).toLowerCase() != (root?.chars[0].char).toUpperCase()) {
 
+			console.log(root?.chars[0].char + ":" + s)
 
+			return;
+		}
 
-
-// create a root node
-let root = null;
-q.sort(function (a, b) { return a.data - b.data; });
-
-while (q.length > 1) {
-
-	let x = q[0];
-	q.shift();
-
-	let y = q[0];
-	q.shift();
-
-	let f = new HuffmanNode();
-
-	f.data = x.data + y.data;
-	f.c = '-';
-
-	// first extracted node as left child.
-	f.left = x;
-
-	// second extracted node as the right child.
-	f.right = y;
-
-	// marking the f node as the root node.
-	root = f;
-
-	// add this node to the priority-queue.
-	q.push(f);
-	q.sort(function (a, b) { return a.data - b.data; });
+		printCode(root.left, s + "0");
+		printCode(root.right, s + "1");
+	}
 }
 
 async function start() {
@@ -126,10 +105,30 @@ async function start() {
 	}
 
 	console.log(JSON.stringify(tree), modifiable);
+	let root;
 
-	for (const node of tree) {
+	while (tree.length > 1) {
+		let x = tree[0];
+		tree.shift();
 
+		let y = tree[0];
+		tree.shift();
+
+		let newNode: Node = {
+			uid: create_UUID(),
+			count: x.count + y.count,
+			chars: [...x.chars, ...y.chars],
+			left: x,
+			right: y,
+		}
+
+		root = newNode;
+		tree.push(newNode);
+		tree.sort((a, b) => { return a.count - b.count });
 	}
+
+	console.log(root)
+	printCode(root, "");
 }
 
 start();
