@@ -6,12 +6,18 @@ interface CharWithCount {
 	count: number,
 }
 
-interface Node {
-	uid: string,
-	count: number,
-	chars: CharWithCount[],
-	left: Node | null,
-	right: Node | null,
+class HuffmanNode {
+	data: number;
+	c: null | string;
+	left: null | HuffmanNode;
+	right: null | HuffmanNode;
+
+	constructor() {
+		this.data = 0;
+		this.c = '';
+		this.left = null;
+		this.right = null;
+	}
 }
 
 function askUserforPath(question: string): Promise<string> {
@@ -27,108 +33,113 @@ function askUserforPath(question: string): Promise<string> {
 	});
 }
 
-function create_UUID(): string {
-	var dt = new Date().getTime();
-	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-		var r = (dt + Math.random() * 16) % 16 | 0;
-		dt = Math.floor(dt / 16);
-		return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-	});
-}
-
-function getLowestCount(array: CharWithCount[]): number {
-	return Math.min(...array.map((temp) => temp.count));
-}
-
-function removeChars(chars: CharWithCount[], array: CharWithCount[]) {
-	return array.filter((objFromA) => {
-		return !chars.find((objFromB) => {
-			return objFromA.char === objFromB.char
-		})
-	})
-}
-
-function getLowestChars(array: CharWithCount[]) {
-	return [...array.filter((charToCheck) => charToCheck.count === getLowestCount(array))]
-}
-
-function createNewNode(chars: CharWithCount[]): Node {
-	return {
-		uid: create_UUID(),
-		chars,
-		count: chars.map((char) => char.count).reduce((prevValue, currentValue) => prevValue + currentValue, 0),
-		left: null,
-		right: null,
-	}
-}
-
-function printCode(root: Node | undefined, s?: string) {
-	if (root !== null && root !== undefined) {
-		if (root.left == null && root.right == null && (root.chars[0].char).toLowerCase() != (root?.chars[0].char).toUpperCase()) {
-
-			console.log(root?.chars[0].char + ":" + s)
-
-			return;
-		}
-
-		printCode(root.left, s + "0");
-		printCode(root.right, s + "1");
-	}
-}
-
 async function start() {
-	const tree: Node[] = [];
-	const filePath = await askUserforPath("Enter the path to the file (I would suggest u use drag and drop)"); 	// ask for file path
-	const formatedFilePath = filePath.replaceAll("'", ""); // replace all single quotes if there are any
+	const filePath = await askUserforPath("Enter the path to the file (I would suggest u use drag and drop)");
+	const formatedFilePath = filePath.replaceAll("'", "");
 
-	const file = fs.readFileSync(formatedFilePath, "utf-8"); // read the file
-	const fileDataString: string = file.toString(); // make sure that the file content is a string
+	console.time("reading file");
+	const file = fs.readFileSync(formatedFilePath, "utf-8");
+	const fileDataString: string = file.toString();
+	console.timeEnd("reading file");
 
-	const charAndCount: CharWithCount[] = []; // setup an empty array
-	const chars = fileDataString.split(""); // split the text of the file into characters
+	console.time("counting chars");
+	const charAndCount: CharWithCount[] = [];
+	const chars = fileDataString.split("");
 	chars.forEach(char => {
-		const found = charAndCount.find((resObjB) => resObjB.char === char); // try to find the char in the charAndCount array
+		const found = charAndCount.find((resObjB) => resObjB.char === char);
 
-		if (found) { // if found then add 1 to count
+		if (found) {
 			found.count = found.count + 1;
-		} else { // else add the non indexed character
+		} else {
 			charAndCount.push({ char, count: 1 });
 		}
 	});
+	console.timeEnd("counting chars");
 
-	const original: CharWithCount[] = charAndCount.sort((a, b) => { return a.count - b.count }); // sort by word count
-	let modifiable: CharWithCount[] = original;
+	console.time("initializing algorythm");
+	const original: CharWithCount[] = charAndCount.sort((a, b) => { return a.count - b.count });
 
-	while (modifiable.length !== 0) {
-		tree.push(createNewNode(getLowestChars(modifiable)));
-		modifiable = removeChars(getLowestChars(modifiable), modifiable);
-	}
+	let n = original.length;
+	let charArray = original.map((charAndCountToChar: CharWithCount) => charAndCountToChar.char);
+	let charfreq = original.map((charAndCountToFreq: CharWithCount) => charAndCountToFreq.count);
 
-	console.log(JSON.stringify(tree), modifiable);
-	let root;
+	let q: HuffmanNode[] = [];
+	let rainbowTable: { char: string, translation: string }[] = [];
 
-	while (tree.length > 1) {
-		let x = tree[0];
-		tree.shift();
+	function printCode(root: HuffmanNode | null, s: string) {
+		if (root !== null) {
+			if (root.left == null
+				&& root.right == null
+				&& root.c !== null) {
 
-		let y = tree[0];
-		tree.shift();
+				rainbowTable.push({ char: root.c, translation: s })
 
-		let newNode: Node = {
-			uid: create_UUID(),
-			count: x.count + y.count,
-			chars: [...x.chars, ...y.chars],
-			left: x,
-			right: y,
+				return;
+			}
+
+			printCode(root.left, s + "0");
+			printCode(root.right, s + "1");
 		}
+	}
+	console.timeEnd("initializing algorythm");
 
-		root = newNode;
-		tree.push(newNode);
-		tree.sort((a, b) => { return a.count - b.count });
+	console.time("creating nodes");
+	for (let i = 0; i < n; i++) {
+
+		let mewHuffmanNode = new HuffmanNode();
+
+		mewHuffmanNode.c = charArray[i];
+		mewHuffmanNode.data = charfreq[i];
+
+		mewHuffmanNode.left = null;
+		mewHuffmanNode.right = null;
+
+		q.push(mewHuffmanNode);
 	}
 
-	console.log(root)
+	let root: HuffmanNode | null = null;
+	q.sort(function (a, b) { return a.data - b.data; });
+	console.timeEnd("creating nodes");
+
+	console.time("assigning nodes");
+	while (q.length > 1) {
+
+		let x = q[0];
+		q.shift();
+
+		let y = q[0];
+		q.shift();
+
+		let f = new HuffmanNode();
+
+		f.data = x.data + y.data;
+		f.c = null;
+
+		f.left = x;
+		f.right = y;
+
+		root = f;
+
+		q.push(f);
+		q.sort(function (a, b) { return a.data - b.data; });
+	}
+	console.timeEnd("assigning nodes");
+
+	console.time("couting paths");
 	printCode(root, "");
+	console.timeEnd("couting paths");
+
+	console.time("translating");
+	const endMessaageArray: string[] = []
+	for (const charToReplace of fileDataString.split("")) {
+		const foundTranslation = rainbowTable.find((translationToFind) => translationToFind.char === charToReplace);
+		if (foundTranslation) {
+			endMessaageArray.push(foundTranslation.translation);
+		}
+	}
+	console.timeEnd("translating");
+
+	console.log(endMessaageArray.join(""));
 }
 
 start();
