@@ -57,13 +57,12 @@ async function start() {
 	console.timeEnd("counting chars");
 
 	console.time("initializing algorythm");
-	const original: CharWithCount[] = charAndCount.sort((a, b) => { return a.count - b.count });
+	const original: CharWithCount[] = charAndCount.sort((a, b) => a.count - b.count);
 
-	let n = original.length;
 	let charArray = original.map((charAndCountToChar: CharWithCount) => charAndCountToChar.char);
 	let charfreq = original.map((charAndCountToFreq: CharWithCount) => charAndCountToFreq.count);
 
-	let q: HuffmanNode[] = [];
+	let queue: HuffmanNode[] = [];
 	let rainbowTable: { char: string, translation: string }[] = [];
 
 	function printCode(root: HuffmanNode | null, s: string) {
@@ -84,7 +83,7 @@ async function start() {
 	console.timeEnd("initializing algorythm");
 
 	console.time("creating nodes");
-	for (let i = 0; i < n; i++) {
+	for (let i = 0; i < original.length; i++) {
 
 		let mewHuffmanNode = new HuffmanNode();
 
@@ -94,34 +93,34 @@ async function start() {
 		mewHuffmanNode.left = null;
 		mewHuffmanNode.right = null;
 
-		q.push(mewHuffmanNode);
+		queue.push(mewHuffmanNode);
 	}
 
 	let root: HuffmanNode | null = null;
-	q.sort(function (a, b) { return a.data - b.data; });
+	queue.sort((a, b) => a.data - b.data);
 	console.timeEnd("creating nodes");
 
 	console.time("assigning nodes");
-	while (q.length > 1) {
+	while (queue.length > 1) {
 
-		let x = q[0];
-		q.shift();
+		let x = queue[0];
+		queue.shift();
 
-		let y = q[0];
-		q.shift();
+		let y = queue[0];
+		queue.shift();
 
-		let f = new HuffmanNode();
+		let newHuffmanNode = new HuffmanNode();
 
-		f.data = x.data + y.data;
-		f.c = null;
+		newHuffmanNode.data = x.data + y.data;
+		newHuffmanNode.c = null;
 
-		f.left = x;
-		f.right = y;
+		newHuffmanNode.left = x;
+		newHuffmanNode.right = y;
 
-		root = f;
+		root = newHuffmanNode;
 
-		q.push(f);
-		q.sort(function (a, b) { return a.data - b.data; });
+		queue.push(newHuffmanNode);
+		queue.sort((a, b) => a.data - b.data);
 	}
 	console.timeEnd("assigning nodes");
 
