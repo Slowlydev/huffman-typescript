@@ -1,5 +1,0 @@
-This is a messsage!
-This is the next line!
-This is a very long message because I have to test the script more.
-But I'm not sure if this will work, but I hope so.
-And this should be a question?

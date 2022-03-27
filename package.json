@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@types/node": "^17.0.22",
+    "binary-file": "^0.2.3",
     "fs": "^0.0.1-security",
     "path": "^0.12.7"
   }
